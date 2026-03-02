@@ -1,8 +1,19 @@
-import { createSupabaseClient } from "@/lib/supabase";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase";
 
 export default async function Home() {
-  const supabase = createSupabaseClient();
+  const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // If not logged in → send to login
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Fetch tickets
   const { data: tickets, error } = await supabase
     .from("tickets")
     .select("*");
